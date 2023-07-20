@@ -22,6 +22,7 @@ import javax.imageio.stream.ImageInputStream;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -38,11 +39,16 @@ import java.io.InputStream;
 //import java.lang.System.Logger;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.FlowLayout;
 
 public class Autos extends JFrame {
+	private static final CopyOption REPLACE_EXISTING = null;
 	private FileNameExtensionFilter filter=new FileNameExtensionFilter("archivos de imagen","jpg","png");
 	private BufferedImage ima;
 	JComboBox cbmarca = new JComboBox();
@@ -59,7 +65,7 @@ public class Autos extends JFrame {
 	JFileChooser file=new JFileChooser();
 	Automoviles autos1[]=new Automoviles[20];
 	public int posi=8;
-	imagenF image=new imagenF();
+//	imagenF image=new imagenF();
 	
 	private JPanel contentPane;
 	private final JLabel lbMarca = new JLabel("Marca");
@@ -122,7 +128,7 @@ public class Autos extends JFrame {
 		tfmarca.setColumns(10);
 		persona();
 		llenarMarca();
-		this.setContentPane(image);
+		//this.setContentPane(image);
 		setResizable(false);
 		lblid.setText(String.valueOf(posi));
 	    tfid.setText(String.valueOf(posi));
@@ -237,20 +243,51 @@ public class Autos extends JFrame {
 		
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				//posi=autos1.length;
+				double precio=0;
+				boolean ban1=true;
 				
-			if(posi<20) {	
 				
-			double precio=Double.valueOf(tfprecio.getText());
-			autos1[posi]=new Automoviles (tfmodelo.getText().toString(), tfmotor.getText().toString(), tftransmision.getText().toString(), precio, tfmarca.getText().toString(), tfversion.getText().toString(),tfid.getText(),URLtexto.getText());	
+				if(tfmodelo.getText().equals("")|| tfmotor.getText().equals("")||tftransmision.getText().equals("")||tfmarca.getText().equals("")||tfversion.getText().equals("")||tfid.getText().equals("")||URLtexto.getText().equals("")) {
+				JOptionPane.showMessageDialog(null, "Faltan datos por llenar");
+				
+			
+					
+				}else {
+					
+					
+					try {
+						 precio=Double.valueOf(tfprecio.getText());
+						 
+					} catch (Exception e2) {
+						
+						JOptionPane.showMessageDialog(null, "El campo precio tiene que ser numerico");
+						ban1=false;
+						
+						// TODO: handle exception
+					}	
+					
+			if(posi<20 && ban1==true ) {	
+			
+			
+			
+			int id=Integer.valueOf(tfid.getText())+1;
+			String id1=String.valueOf(id);
+			autos1[(posi)]=new Automoviles (tfmodelo.getText().toString(), tfmotor.getText().toString(), tftransmision.getText().toString(), precio, tfmarca.getText().toString(), tfversion.getText().toString(),id1,URLtexto.getText());	
 				posi++;
 				rellenar(); 
 				limpiar();}
 			 lblid.setText(String.valueOf(posi));
 			 tfid.setText(String.valueOf(posi));
+			 
+			 for(int i=0; i<posi; i++) {
+				  System.out.println(autos1[i].getMarca()+" "+autos1[i].getModelo()+" "+autos1[i].getMotor()+" "+autos1[i].getNumeroSerie()+" "+autos1[i].getPrecio()+" "+autos1[i].getTransmision());
+				 
+				 
+			 }
 				
-			}
+			}}
 		});
-		
 		
 		
 		tfversion = new JTextField();
@@ -283,15 +320,11 @@ public class Autos extends JFrame {
 		JButton btnNewButton_1 = new JButton("Imagen");
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-					
-			
 				try {
 					
 					imagabri();
 				
-					
 				} catch (Exception e2) {
-				
 					
 				}
 				
@@ -478,15 +511,29 @@ public class Autos extends JFrame {
 		
 	}
 	
-	
 	public void cargarima(int a)   {
 		String Ruta=autos1[a].getImagen();
 		   Image imaico=new ImageIcon(Ruta).getImage();
 		    ImageIcon imaOri=new ImageIcon(imaico.getScaledInstance(lblImagenOriginal.getWidth(), lblImagenOriginal.getHeight(),Image.SCALE_SMOOTH));
+		  
 		   lblImagenOriginal1.setIcon(imaOri);
+		   ImageIcon icono;
 		     URLtexto.setText(Ruta);	
 		     URLtexto.setVisible(false);
+		     icono=new ImageIcon(getClass().getResource(Ruta));
+		     
+		     
+		     
+		     if(Ruta.length()>=28)
+		    	 {System.out.println("hola 2");
+		    	 lblImagenOriginal1.setIcon(imaOri);
+		    	 }else
+		    		 lblImagenOriginal1.setIcon(icono);
+		     
 		}
+	
+	
+	
 	
 	public void imagabri() {
 		String Ruta;
@@ -501,13 +548,33 @@ public class Autos extends JFrame {
 		    ImageIcon imaOri=new ImageIcon(imaico.getScaledInstance(lblImagenOriginal.getWidth(), lblImagenOriginal.getHeight(),Image.SCALE_SMOOTH));
 		   lblImagenOriginal.setIcon(imaOri);
 		     URLtexto.setText(Ruta);
-		     URLtexto.setVisible(false);
-		
+		     //ImageIcon icono=new ImageIcon(getClass().getResource("../Imagenes/fondo.jpg"));
+		     //URL dos=URL(Ruta);
+		     //URLtexto.setIcon(getClass().getResource());
+		     //lblImagenOriginal.setIcon(getClass().getResource("imagenes/icono.png));
+		     URLtexto.setVisible(false);	
+		     File archivo=AbrirIma.getSelectedFile();
+		     try {
+		    	 String dest=System.getProperty("user.dir")+"/imagenes/"+archivo.getName();
+			     Path Destino=Paths.get(dest);
+			     String Orig= archivo.getPath();
+			     Path Original= Paths.get(Orig);
+			    // Files.copy(Original, Destino, REPLACE_EXISTING );
+			     Files.copy(Original, Destino, REPLACE_EXISTING);
+			     System.out.println(dest);
+				
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+		     
+		     
+		     
+		     
+		     
+		     
+		     
 		    }
-		
-		
 	}
-	
 	
 	
 	public int verDatos() throws MalformedURLException, IOException {
@@ -527,7 +594,6 @@ public class Autos extends JFrame {
 		
 		}else
 			dato=buscarid();
-	
 		
 		return dato;
 	}
@@ -548,29 +614,25 @@ public class Autos extends JFrame {
 				a=posi;
 			}
 			
-			
 		}
 
 		return  indi;	
-		
 	}
 	
 	public void persona() {
 		
-		autos1[0]=new Automoviles ("2023","302","automatico",125.000,"Nissan","sentra","1","C:\\Users\\juan\\eclipse-workspace\\proyectoFinal\\src\\imagenes\\sentra.jpg");
-		autos1[1]=new Automoviles ("2023","2.0","Estandar",130.000,"Nissan", "tsuru","2",  "C:\\Users\\juan\\eclipse-workspace\\proyectoFinal\\src\\imagenes\\tsusu2023.jpg");
-		autos1[2]=new Automoviles ("2023","2.0","Estandar",140.000,"Nissan","Versa","3",   "C:\\Users\\juan\\eclipse-workspace\\proyectoFinal\\src\\imagenes\\versa2023.jpg");
-		autos1[3]=new Automoviles ("2023","1.6","Estandar",250.000,"Nissan","Mp300","4",   "C:\\Users\\juan\\eclipse-workspace\\proyectoFinal\\src\\imagenes\\np300.jpg");
-		autos1[4]=new Automoviles ("2023","2.0","Estandar",280.000,"Chevrolet","aveo","5", "C:\\Users\\juan\\eclipse-workspace\\proyectoFinal\\src\\imagenes\\ave2023.jpg");
-		autos1[5]=new Automoviles ("2023","2.0","Estandar",200.000,"Ford","fiesta","6",    "C:\\Users\\juan\\eclipse-workspace\\proyectoFinal\\src\\imagenes\\fiesta.jpg");
-		autos1[6]=new Automoviles ("2023","2.0","Estandar",650.000,"Toyota","Tacoma","7",  "C:\\Users\\juan\\eclipse-workspace\\proyectoFinal\\src\\imagenes\\tacoma2023.jpg");
-		autos1[7]=new Automoviles ("2023","2.0","Estandar",220.000,"ford","fordk","8",     "C:\\Users\\juan\\eclipse-workspace\\proyectoFinal\\src\\imagenes\\fordka.jpg");
+		autos1[0]=new Automoviles ("2023","302","automatico",125.000,"Nissan","sentra","1","/imagenes/sentra.jpg");
+		autos1[1]=new Automoviles ("2023","2.0","Estandar",130.000,"Nissan", "tsuru","2",  "/imagenes/tsusu2023.jpg");
+		autos1[2]=new Automoviles ("2023","2.0","Estandar",140.000,"Nissan","Versa","3",   "/imagenes/versa2023.jpg");
+		autos1[3]=new Automoviles ("2023","1.6","Estandar",250.000,"Nissan","Mp300","4",   "/imagenes/np300.jpg");
+		autos1[4]=new Automoviles ("2023","2.0","Estandar",280.000,"Chevrolet","aveo","5", "/imagenes/ave2023.jpg");
+		autos1[5]=new Automoviles ("2023","2.0","Estandar",200.000,"Ford","fiesta","6",    "/imagenes/fiesta.jpg");
+		autos1[6]=new Automoviles ("2023","2.0","Estandar",650.000,"Toyota","Tacoma","7",  "/imagenes/tacoma2023.jpg");
+		autos1[7]=new Automoviles ("2023","2.0","Estandar",220.000,"ford","fordk","8",     "/imagenes/fordka.jpg");
 		
 	}
 
     public void rellenarid() {
-	
-	System.out.println(ba);
 	cbid.removeAllItems();
 		int indice=cbversion.getSelectedIndex();
 	
@@ -647,6 +709,12 @@ public class Autos extends JFrame {
 		}
 			
 	}
+	
+	
+	
+	public void guadarIma() {}
+	
+	JFileChooser foto1=new JFileChooser();
 	
 }
 
